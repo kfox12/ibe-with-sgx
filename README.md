@@ -4,11 +4,28 @@ An Identity-Based-Encryption demo segmented into Setup, Encrypt, and Decrypt pha
 
 ## TO RUN THE PROGRAM
 ### Without SGX: To run entire program with gramine but outside of SGX
-1. *make*
-2. *make run-all*
+---Run the following in your working directory---
+1.
+   '''bash
+  *make*
+  '''
+2.
+   '''bash
+  *make run-all*
+  '''
    
 ### With SGX: To run the entire program with gramine and include SGX functionality
-1. Generate SGX enclave signing key and replace value of SIGNER_KEY at the top of the MAKEFILE (only has to be done once)
+---Run the following in your working directory---
+1.
+   Generate SGX enclave signing key and replace value of SIGNER_KEY at the top of the MAKEFILE (only has to be done once)
+   '''bash
    *gramine-sgx-gen-private-key -f $HOME/.config/gramine/enclave-key.pem*
-3. *make SGX=1*
-4. *make run-all*
+   '''
+2. 
+   '''bash
+   *make SGX=1*
+   '''
+3. 
+   '''bash
+   *make run-all*
+   '''
