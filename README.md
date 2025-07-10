@@ -14,7 +14,7 @@ An Identity-Based-Encryption demo segmented into Setup, Encrypt, and Decrypt pha
 ---Run the following in your working directory---<br>
 1. Generate SGX enclave signing key (only has to be done once)<br>
    **Command:** *gramine-sgx-gen-private-key -f $HOME/.config/gramine/enclave-key.pem*<br>
-   **Then update the value of SIGNER_KEY at the top of the MAKEFILE with this path**
+   **Then update the value of SIGNER_KEY at the top of the Makefile with this path**
 2. Build the project<br>
    **Command:** *make SGX=1*<br>
 3. Run the demo<br>
