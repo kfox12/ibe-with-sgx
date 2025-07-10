@@ -4,7 +4,7 @@ An Identity-Based-Encryption demo segmented into Setup, Encrypt, and Decrypt pha
 
 ## TO RUN THE PROGRAM
 ### Without SGX: To run entire program with gramine but outside of SGX
-1. *make* '''
+1. *make*
 2. *make run-all*
    
 ### With SGX: To run the entire program with gramine and include SGX functionality
