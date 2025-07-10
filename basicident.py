@@ -17,8 +17,6 @@ import os
 import random
 import json
 import sys
-#from master_secret import gen_master_secret
-#from json_manager import get_json_key, decrypt_json
 from copy import deepcopy
 from sage.crypto.cryptosystem import PublicKeyCryptosystem
 from sage.all import (EllipticCurve, Hom, Zmod, FiniteField, Integer, GF, factor)
@@ -27,7 +25,6 @@ from sage.all import (EllipticCurve, Hom, Zmod, FiniteField, Integer, GF, factor
 # 1.  Boneh–Franklin BasicIdent class
 # ----------------------------------------------------------------------
 class BasicIdent(PublicKeyCryptosystem):
-#class BasicIdent:
     """
     Boneh & Franklin “BasicIdent” identity‑based encryption.
 
@@ -253,10 +250,7 @@ def main():
         E = EllipticCurve(GF(q), [0, 1])               # y² = x³ + 1
 
         N = E.cardinality()  # order of E(𝔽_q)
-        #print(f"Total number of points on E(𝔽_{q}) = {N}.")
-        #factors = factor(N)
-        #print(f"Largest prime factor of E(𝔽_{q}) = {max(p[0] for p in factors)}") 
-
+        
         for _ in range(5000):
             pt = E.random_point()
             if pt.order().is_prime():
@@ -271,12 +265,7 @@ def main():
                 if pt.order().is_prime() and pt.order() > 1000) 
                 #Added requirement for P to be greater than 1000
         """
-        # while True:
-        #     P = EllipticCurve(GF(q), [0, 1]).random_point()
-        #     n = P.order()
-        #     if n.is_prime() and n > 1000:
-        #         break
-
+        
         ibe = BasicIdent(E, P=P, dmap=simple_distortion,pairing="weil", seed=42)
 
         print(f"[setup]  q = {q},  n = {ibe.order},  k = {ibe.k}")

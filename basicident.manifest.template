@@ -1,8 +1,6 @@
 # Copyright (C) 2023 Gramine contributors
 # SPDX-License-Identifier: BSD-3-Clause
 
-# Python3 manifest example - FULLY HARDCODED VERSION
-
 loader.entrypoint.uri = "file:{{ gramine.libos }}"
 libos.entrypoint = "/data/sage/venv/bin/python3"
 loader.argv = [
@@ -35,12 +33,6 @@ fs.mounts = [
     { type = "tmpfs", path = "/tmp" },
     # Segmentation
     { path = "/output", uri = "file:./output"},
-    #{ path = "/tmp/private_key.json", uri = "file:/tmp/private_key.json"},
-    #{ path = "/system_params.json", uri = "file:system_params.json"},
-    #{ path = "/ciphertext.json", uri = "file:ciphertext.json"},
-
-
-
 ]
 
 sys.stack.size = "2M"

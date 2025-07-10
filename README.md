@@ -1,6 +1,7 @@
 # segmented-ibe-sgx
 An Identity-Based-Encryption demo segmented into Setup, Encrypt, and Decrypt phases, run both inside and outside Intel SGX
 
+**To Note:** This program runs with SAGE v10.6, and utilizes SAGE's built-in python interpreter
 
 ## TO RUN THE PROGRAM
 ### Without SGX: To run entire program with gramine but outside of SGX
