@@ -4,7 +4,7 @@ An Identity-Based-Encryption demo segmented into Setup, Encrypt, and Decrypt pha
 
 ## TO RUN THE PROGRAM
 ### Without SGX: To run entire program with gramine but outside of SGX
----Run the following in your working directory---  return
+---Run the following in your working directory---<br>
 1.
    '''bash
   *make*
