@@ -1,0 +1,44 @@
+{
+  "drones": [
+    {
+      "identity": "blue@notredame",
+      "wind_xp": 2
+    },
+    {
+      "identity": "red@notredame",
+      "wind_xp": 1
+    },
+    {
+      "identity": "green@notredame",
+      "wind_xp": 0
+    },
+    {
+      "identity": "yellow@notredame",
+      "wind_xp": 2
+    },
+    {
+      "identity": "purple@notredame",
+      "wind_xp": 1
+    },
+    {
+      "identity": "orange@notredame",
+      "wind_xp": 0
+    },
+    {
+      "identity": "black@notredame",
+      "wind_xp": 2
+    },
+    {
+      "identity": "white@notredame",
+      "wind_xp": 1
+    },
+    {
+      "identity": "pink@notredame",
+      "wind_xp": 2
+    },
+    {
+      "identity": "lime@notredame",
+      "wind_xp": 0
+    }
+  ]
+}
