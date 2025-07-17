@@ -32,6 +32,7 @@ def can_send(request):
         if request["requester"] == request["identity"]:
             return True
     return False
+
 def get_encrypt_params(ibe, destination):
     pub_id = ibe.gen_P_pub()
     P = ibe.P
@@ -95,12 +96,6 @@ def start(s, SERVER, ibe):
                 logger.info(f"[SENDING] decryption params to {request["requester"]}")
                 conn.send(decrypt_str.encode(PROTOCOL))
                 conn.close()
-
-
-        
-
-
-#def context_manager(context):
 
 def main():
     #global drone_list

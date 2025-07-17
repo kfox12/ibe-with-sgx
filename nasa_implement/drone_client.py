@@ -5,7 +5,7 @@ import json
 import basicident
 DISCONNECT_MSG = "!DISCONNECTING"
 PROTOCOL =  'utf-8'
-drone = "lime@notredame"
+drone = "red@notredame"
 
 def conn_to_kga():
     SERVER = socket.gethostbyname(socket.gethostname())

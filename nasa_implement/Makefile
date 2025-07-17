@@ -7,7 +7,10 @@ run-sam:
 run-drone:
 	sage -python drone_client.py
 
+run-drp:
+	sage -python drp_manager.py
+
 clean:
 	rm *.log
 
-.PHONY: clean run-kga run-sam run-drone
+.PHONY: clean run-kga run-sam run-drone run-drp
