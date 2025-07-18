@@ -75,6 +75,7 @@ def start(s, SERVER, ibe):
         conn, addr = s.accept() #Waits until Drone connects
         request_str = conn.recv(4096).decode(PROTOCOL)
         request = json.loads(request_str)
+        logger.info("==========================================================================================")
         logger.info(f"Request received\n{json.dumps(request, indent=3)}")
         if request["requester"] == "manager@SAM":
             logger.info(f"[CONNECTED] to SAM at {addr}")
@@ -100,11 +101,11 @@ def start(s, SERVER, ibe):
 def main():
     #global drone_list
     #drone_list = [Drone(i) for i in range(10)]
-    ibe = basicident.gen_global_params()
-
     global logger
     logger = logging.getLogger(__name__)
     logging.basicConfig(filename='kga_server.log', level = logging.INFO, encoding='utf-8', filemode='w')
+    logger.info("[READY] KGA SERVER UP AND WAITING FOR CONNECTION")
+    ibe = basicident.gen_global_params()
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     SERVER = socket.gethostbyname(socket.gethostname())
     port_kga = 5051

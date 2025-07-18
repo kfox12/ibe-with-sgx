@@ -1,3 +1,4 @@
+#sam_server.py
 import socket
 import json
 import logging
@@ -16,6 +17,31 @@ def check_wind():
     logger.info(f"[CHECKING] wind level: {wind}")
     return wind
 
+def build_request(request_type):
+    request = {
+        "request_type": request_type,
+        "requester": "manager@SAM",
+        "identity": "manager@SAM",
+        "auth_token": "<some form of authentication>",
+    }
+    return request
+
+def build_curve(curve_data):
+    q = curve_data["curve"]["q"]
+    a = curve_data["curve"]["a"]
+    b = curve_data["curve"]["b"]
+    E = basicident.gen_EC(q, a, b)
+    return E
+
+def rebuild_cipher(ciphertext):
+    '''Makes C1, C2 back into EC points'''
+    E = build_curve(ciphertext)
+    #----------------
+    # Rebuilding the ciphertext with the EC
+    C1 = E(ciphertext["C1"]["x"], ciphertext["C1"]["y"])
+    C2 = ciphertext["C2"]   
+    return C1, C2
+
 def conn_to_drp():
     SERVER = socket.gethostbyname(socket.gethostname())
     port_drp = 5052 #drp's port number
@@ -23,6 +49,36 @@ def conn_to_drp():
     drp_socket.connect((SERVER, port_drp)) #Connects to sam_server
     logger.info("[CONNECTED] to DRP manager")
     return drp_socket
+
+def conn_to_kga():
+    SERVER = socket.gethostbyname(socket.gethostname())
+    port_kga = 5051 #kga's port number
+    kga_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    kga_socket.connect((SERVER, port_kga)) #Connects to sam_server
+    logger.info("[CONNECTED] to KGA server")
+    return kga_socket
+
+def recv_decrypt_data(kga_socket):
+    decrypt_str = kga_socket.recv(4096).decode(PROTOCOL)
+    logger.info("[RECEIVED] private key info from KGA")
+    decrypt_data = json.loads(decrypt_str)
+    # Rebuilding d_ID using the EC
+
+    E = build_curve(decrypt_data)
+    global d_ID
+    d_ID = E((decrypt_data["d_ID"]["x"], decrypt_data["d_ID"]["y"]))
+    order = decrypt_data["order"]
+
+    return decrypt_data, d_ID, order
+
+def sign_feedback(feedback_str, drone_id, E, order, P):
+    Q_ID = basicident.H1(drone_id, order, P)
+    logger.info("[SIGNING] the feedback")
+    C1, C2 = basicident.encrypt(feedback_str, d_ID, order, P, Q_ID, text=True)
+    return {
+        "C1": {"x": int(C1[0]), "y": int(C1[1])},
+        "C2": C2
+    }
 
 def get_drp(drone_conn):
     drp_socket = conn_to_drp()
@@ -54,7 +110,13 @@ def get_drone_exp(drp, identity):
             logger.info(f"Drone's wind experience: {drone["wind_xp"]}")
             return drone["wind_xp"]
     raise ValueError(f"Drone with identity {identity} not found in DRP file")
-    
+
+def verify_sig(apar):
+    if apar["signature"] == None:
+        return False
+    else:
+        return True
+
 def verify_airspace_req(drone_conn, apar):
     logger.info("[CHECKING] environment conditions")
     wind_lvl = check_wind()
@@ -65,67 +127,6 @@ def verify_airspace_req(drone_conn, apar):
     
     # if True, Drone can enter the airspace 
     return has_exp(wind_lvl, wind_exp)
-
-def verify_sig(apar):
-    if apar["signature"] == None:
-        return False
-    else:
-        return True
-    
-def sign_feedback(feedback_str, drone_id, E, order, P):
-    Q_ID = basicident.H1(drone_id, order, P)
-    logger.info("[SIGNING] the feedback")
-    C1, C2 = basicident.encrypt(feedback_str, d_ID, order, P, Q_ID, text=True)
-    return {
-        "C1": {"x": int(C1[0]), "y": int(C1[1])},
-        "C2": C2
-    }
-
-def conn_to_kga():
-    SERVER = socket.gethostbyname(socket.gethostname())
-    port_kga = 5051 #kga's port number
-    kga_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    kga_socket.connect((SERVER, port_kga)) #Connects to sam_server
-    logger.info("[CONNECTED] to KGA server")
-    return kga_socket
-
-def build_request(request_type):
-    request = {
-        "request_type": request_type,
-        "requester": "manager@SAM",
-        "identity": "manager@SAM",
-        "auth_token": "<some form of authentication>",
-    }
-    return request
-
-def build_curve(curve_data):
-    q = curve_data["curve"]["q"]
-    a = curve_data["curve"]["a"]
-    b = curve_data["curve"]["b"]
-    E = basicident.gen_EC(q, a, b)
-    return E
-
-def rebuild_cipher(ciphertext):
-    '''Makes C1, C2 back into EC points'''
-    E = build_curve(ciphertext)
-    #----------------
-    # Rebuilding the ciphertext with the EC
-    C1 = E(ciphertext["C1"]["x"], ciphertext["C1"]["y"])
-    C2 = ciphertext["C2"]   
-    return C1, C2
-
-def recv_decrypt_data(kga_socket):
-    decrypt_str = kga_socket.recv(4096).decode(PROTOCOL)
-    logger.info("[RECEIVED] private key info from KGA")
-    decrypt_data = json.loads(decrypt_str)
-    # Rebuilding d_ID using the EC
-
-    E = build_curve(decrypt_data)
-    global d_ID
-    d_ID = E((decrypt_data["d_ID"]["x"], decrypt_data["d_ID"]["y"]))
-    order = decrypt_data["order"]
-
-    return decrypt_data, d_ID, order
 
 def decrypt_apar(C1, C2):
     '''Takes in the encrypted Ciphertext sent from Drone, 
@@ -147,25 +148,6 @@ def decrypt_apar(C1, C2):
     logger.info(json.dumps(json.loads(apar), indent=3))
     return apar, decrypt_data
 
-def accept_drone(s, SERVER):
-    while True:
-        conn, addr = s.accept() #Waits until Drone connects
-        logger.info(f"[CONNECTED] with drone {SERVER}")
-        ''' data will be populated with the encrypted apar.json
-        (Python dictionary) that the drone sends over upon 
-        connection
-        '''
-        data = conn.recv(4096).decode(PROTOCOL) 
-        apar_ciphertext = json.loads(data)
-        # Reconstructing EC from drone data 
-        C1, C2 = rebuild_cipher(apar_ciphertext)
-        apar_str, decrypt_data = decrypt_apar(C1, C2)
-        apar = json.loads(apar_str)
-        if not verify_sig(apar):
-            raise ValueError("No signature on encrypted apar file")
-        E = build_curve(decrypt_data)
-        handle_apar(conn, apar, E, decrypt_data)
-        
 def handle_apar(conn, apar, E, decrypt_data):
     airspace_feedback = {
             "id": apar["id"],
@@ -185,6 +167,26 @@ def handle_apar(conn, apar, E, decrypt_data):
     logger.info("[SENDING] signed feedback to drone")
     conn.send(feedback_str.encode(PROTOCOL))
 
+def accept_drone(s, SERVER):
+    while True:
+        conn, addr = s.accept() #Waits until Drone connects
+        logger.info("==========================================================================================")
+        logger.info(f"[CONNECTED] with drone {SERVER}")
+        ''' data will be populated with the encrypted apar.json
+        (Python dictionary) that the drone sends over upon 
+        connection
+        '''
+        data = conn.recv(4096).decode(PROTOCOL) 
+        apar_ciphertext = json.loads(data)
+        # Reconstructing EC from drone data 
+        C1, C2 = rebuild_cipher(apar_ciphertext)
+        apar_str, decrypt_data = decrypt_apar(C1, C2)
+        apar = json.loads(apar_str)
+        if not verify_sig(apar):
+            raise ValueError("No signature on encrypted apar file")
+        E = build_curve(decrypt_data)
+        handle_apar(conn, apar, E, decrypt_data)
+        
 def start_server():
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     SERVER = socket.gethostbyname(socket.gethostname())
