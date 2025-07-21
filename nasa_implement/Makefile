@@ -1,5 +1,5 @@
 PY_SCRIPT := kga_server.py
-SAGE_DIR := /data/sage
+#SAGE_DIR := INPUT YOUR LOCAL SAGE PATH
 MANIFEST := nasa_implement.manifest
 MANIFEST_TEMPLATE := $(MANIFEST).template
 SGX_SIGNED_MANIFEST := $(MANIFEST).sgx

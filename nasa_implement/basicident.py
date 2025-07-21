@@ -3,15 +3,6 @@ subprocess.getstatusoutput = lambda *a, **k: (0, "")
 subprocess.getoutput       = lambda *a, **k: ""
 #!/usr/bin/env sage -python
 # -*- coding: utf-8 -*-
-"""
-basicident_demo.py
-~~~~~~~~~~~~~~~~~~
-
-Small implementation of Boneh–Franklin IBE (the “BasicIdent”
-variant) that runs under Python ≥ 3.10 and SageMath ≥ 9.5.
-
-Run:   sage -python basicident_demo.py
-"""
 
 import os
 import random
@@ -216,22 +207,9 @@ def handle_context(context, ibe, E):
         pub_ID_serial = {"x": int(pub_ID[0]), "y": int(pub_ID[1])}
             
         P_serial = {"x": int(P[0]), "y": int(P[1])}
-        #print("[PKG]    Issued private key for identity:", ID, "\n")
 
-        '''system_params = {
-            "ID": ID,
-            "P_pub": pub_ID_serial, 
-            "P": P_serial, 
-            "Order": int(ibe.order)
-        }'''
         Q_ID = H1(ID, ibe.order, ibe.P)
         C1, C2 = encrypt(context["message"], pub_ID, ibe.order, P, Q_ID, seed=99, text=True)
-        '''Only if cipher is written to a file
-        ciphertext = {
-            "C1": {"x": int(C1[0]), "y": int(C1[1])},  #Will later need to do E(C1) to recover the EC point that it represents
-            "C2": C2,
-            "Message": message
-        }'''
         print(f"C1: {C1} \nC2: {C2}")
     return personal_data
 
@@ -249,17 +227,7 @@ def gen_global_params():
                 break
     else:
         raise ValueError("No suitable point P found on E(𝔽_q)")
-    """
-    P = next(pt for pt in (E.random_point() for _ in range(500))
-            if pt.order().is_prime() and pt.order() > 1000) 
-            #Added requirement for P to be greater than 1000
-    """
-    # while True:
-    #     P = EllipticCurve(GF(q), [0, 1]).random_point()
-    #     n = P.order()
-    #     if n.is_prime() and n > 1000:
-    #         break
 
     return BasicIdent(E, P=P, dmap=simple_distortion,pairing="weil", seed=42)
 def gen_EC(q, a, b):
-    return EllipticCurve(GF(q), [a, b])# ----------------------------------------------------------------------
+    return EllipticCurve(GF(q), [a, b])
