@@ -10,7 +10,7 @@ To run the NASA drone implement, 4 terminal tabs are needed
 - All of these programs use logs rather than stdout, so check *fileName*.log for updates on a specific file while it's running
 - To change the alter what drone is requesting access into the airspace, change the *drone* variable at the top of drone_client.py
 
-# Run each command in a separate terminal (first two in the same), in this order
+# Run all but the first two commands that follow in a unique terminal, in this order
 **Note**:
 - After running *make run-sgx*, check the kga_server.log for a message that the KGA is up and running before performing the rest of the commands!
 
